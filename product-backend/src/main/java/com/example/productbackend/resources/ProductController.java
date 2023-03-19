@@ -3,7 +3,10 @@ package com.example.productbackend.resources;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.productbackend.models.Product;
@@ -14,22 +17,10 @@ import com.example.productbackend.models.Product;
 
 public class ProductController {
     
-        @GetMapping("product")
-        
-        public Product getProduct(){
-            
-            Product obj = new Product();
+        private List<Product> products = new ArrayList<>();
 
-            obj.setId(1);
-            obj.setName("RTX 4090");
-            obj.setPrice(5090.90);
-
-            return obj;
-        }
-
-        @GetMapping("products")
-        public List<Product> getProducts(){
-           
+        @PostConstruct
+        public void init(){
             Product obj = new Product();
             obj.setId(1);
             obj.setName("RTX 4090");
@@ -50,13 +41,27 @@ public class ProductController {
             obj4.setName("RTX 4090");
             obj4.setPrice(4090.90);
 
-            List<Product> list = new ArrayList<>();
+            products.add(obj);
+            products.add(obj2);
+            products.add(obj3);
+            products.add(obj4);
 
-            list.add(obj);
-            list.add(obj2);
-            list.add(obj3);
-            list.add(obj4);
+        }
 
-            return list;
+    
+    
+    
+        @GetMapping("products/{id}")
+        
+        public Product getProduct(@PathVariable int id){
+            
+
+            return products.get(id - 1 );
+        }
+
+        @GetMapping("products")
+        public List<Product> getProducts(){;
+
+            return products;
         }
 }
