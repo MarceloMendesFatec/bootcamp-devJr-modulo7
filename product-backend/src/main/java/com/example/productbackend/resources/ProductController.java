@@ -1,67 +1,65 @@
 package com.example.productbackend.resources;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.productbackend.models.Product;
 
 @RestController
 
-
-
 public class ProductController {
-    
-        private List<Product> products = new ArrayList<>();
 
-        @PostConstruct
-        public void init(){
-            Product obj = new Product();
-            obj.setId(1);
-            obj.setName("RTX 4090");
-            obj.setPrice(5090.90);
+    // public Product(int id, String name, String description, boolean promotion, boolean newProduct, int idCategory,
+    //                 double price)
 
-            Product obj2 = new Product();
-            obj2.setId(2);
-            obj2.setName("RTX 2090");
-            obj2.setPrice(2090.90);
+    private List<Product> products = Arrays.asList( new Product(1, "RTX 4090","Description 01",false,false,1, 5090.90),
+                                                    new Product(2, "RTX 2090","Description 02",true,true,2,2090.90), 
+                                                    new Product(3,"RTX 3090","Description 03",false,true,3, 5390.90),
+                                                    new Product(4, "RTX 4090","Description 04",true,false,2,4090.90)
+    );
+     // @PostConstruct                               
+    // public void init() {
+    //     Product obj = new Product(1, "RTX 4090", 5090.90);
+    //     Product obj2 = new Product(2, "RTX 2090",2090.9);
+    //     Product obj3 = new Product(3,"RTX 3090", 5390.90);
+    //     Product obj4 = new Product(4, "RTX 4090", 4090.90);  
+            //     products.add(obj);
+            //     products.add(obj2);
+            //     products.add(obj3);
+            //     products.add(obj4);
 
-            Product obj3 = new Product();
-            obj3.setId(3);
-            obj3.setName("RTX 3090");
-            obj3.setPrice(5390.90);
+    // }
 
-            Product obj4 = new Product();
-            obj4.setId(4);
-            obj4.setName("RTX 4090");
-            obj4.setPrice(4090.90);
-
-            products.add(obj);
-            products.add(obj2);
-            products.add(obj3);
-            products.add(obj4);
-
-        }
-
-    
-    
-    
-        @GetMapping("products/{id}")
+    @GetMapping("products/{id}")
         
-        public Product getProduct(@PathVariable int id){
-            
+        public ResponseEntity<Product> getProduct(@PathVariable int id){                                                                                
+            // if( id <= products.size()){
+            //     return ResponseEntity.ok(products.get(id - 1 ));
+            // }else{
+            //    throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Product not found");
+            // }
 
-            return products.get(id - 1 );
+            Product prod = products.stream()
+                                    .filter(p -> p.getId() == id)
+                                    .findFirst()
+                                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));            
+                                    return ResponseEntity.ok(prod);
         }
 
-        @GetMapping("products")
-        public List<Product> getProducts(){;
+    @GetMapping("products")
+    public List<Product> getProducts() {
+        ;
 
-            return products;
-        }
+        return products;
+    }
 }
