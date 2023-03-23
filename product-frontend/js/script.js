@@ -1,26 +1,38 @@
 //Masks
 $("#inputPrice").mask("000.000.000.000.000,00", { reverse: true });
 
-function convertToNumber(priceFormat){
+function convertToNumber(priceFormat) {
     return priceFormat.replace(/\./g, '').replace(',', '.');
 }
 
 var products = [];
 
-var categories = [
-    { id: 1, name: "Produção Própria" },
-    { id: 2, name: "Nacional" },
-    { id: 3, name: "Importado" }
-];
+var categories = [];
 
 //OnLoad
+loadCategories();
 loadProducts();
+
+function loadCategories() {
+    $.ajax({
+        url: "http://localhost:8080/categories",
+        type: "GET",
+        async: "false",
+        success: (response) => {
+            categories = response;
+            for (let cat of categories) {
+                document.getElementById("selectCategory").innerHTML += `<option value= ${cat.id}>${cat.name}</option>`;
+            }
+        }
+    })
+}
+
 
 
 function loadProducts() {
     $.getJSON("http://localhost:8080/products", response => {
-        
-        for (let prod of response) {
+        products = response
+        for (let prod of products) {
             addNewRow(prod);
         }
     });
@@ -34,13 +46,27 @@ function save() {
         name: document.getElementById("inputName").value,
         description: document.getElementById("inputDescription").value,
         price: convertToNumber(document.getElementById("inputPrice").value),
-        category: document.getElementById("selectCategory").value,
+        idCategory: document.getElementById("selectCategory").value,
         promotion: document.getElementById("checkBoxPromotion").checked,
-        new: document.getElementById("checkBoxNewProduct").checked
+        newProduct: document.getElementById("checkBoxNewProduct").checked
     };
 
-    addNewRow(prod);
-    products.push(prod);
+
+    $.ajax({
+        url: "http://localhost:8080/products",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(prod),
+        success: (prod) => {
+            addNewRow(prod);
+            products.push(prod);
+            document.getElementById("formProduct").reset();
+        }
+    })
+
+
+
+
 
     document.getElementById("formProduct").reset();
 
@@ -64,7 +90,7 @@ function addNewRow(prod) {
     //Insert product description
     var descriptionNode = document.createTextNode(prod.description);
     var cell = newRow.insertCell();
-    cell.className="d-none d-md-table-cell";
+    cell.className = "d-none d-md-table-cell";
     cell.appendChild(descriptionNode);
 
     //Insert product price
@@ -91,7 +117,7 @@ function addNewRow(prod) {
     }
 
     cell = newRow.insertCell();
-    cell.className="d-none d-md-table-cell";
+    cell.className = "d-none d-md-table-cell";
     cell.innerHTML = options;
 
 }
